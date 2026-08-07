@@ -494,7 +494,7 @@ static char rotary_axes[] = "A-Axis,B-Axis,C-Axis,U-Axis,V-Axis";
 #endif
 
 static on_file_demarcate_ptr on_file_demarcate;
-static char step_us_min[4];
+static char step_us_min[8];
 static char fs_options[] = "Auto mount SD card,Hide LittleFS,Hierarchical listing";
 static char spindle_types[100] = "";
 static char axis_dist[4] = "mm";
