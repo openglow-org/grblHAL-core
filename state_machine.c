@@ -517,6 +517,15 @@ FLASHMEM static void state_await_hold (uint_fast16_t rt_exec)
         plan_cycle_reinitialize();
         sys.step_control.flags &= (step_control_t){ .end_motion = On }.flags;
 
+        // Laser mode: the step segments prepared while held are the first ones a resume
+        // executes, and clearing the flags above would leave them without a spindle update.
+        // The beam is off across a hold, so the first segment must re-assert the programmed
+        // power, or a constant power (M3) block resumes dark for a segment buffer.
+        if(gc_spindle_get(0)->hal->cap.laser) {
+            st_rpm_changed(0.0f);
+            sys.step_control.update_spindle_rpm = On;
+        }
+
         if(sys.alarm_pending)
             system_set_exec_alarm(sys.alarm_pending);
 
