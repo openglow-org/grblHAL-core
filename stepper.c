@@ -1315,6 +1315,7 @@ void st_prep_buffer (void)
             if (pl_block->spindle.state.on) {
                 if(pl_block->spindle.css) {
                     float npos = (float)(pl_block->step_event_count - prep.steps_remaining) / (float)pl_block->step_event_count;
+                    pl_block->spindle.hal->param->rate_ratio = 1.0f;
                     rpm = spindle_set_rpm(pl_block->spindle.hal,
                                            pl_block->spindle.rpm + pl_block->spindle.css->delta_rpm * npos,
                                             pl_block->spindle.hal->param->override_pct);
@@ -1322,10 +1323,13 @@ void st_prep_buffer (void)
                     // NOTE: Feed and rapid overrides are independent of PWM value and do not alter laser power/rate.
                     // If current_speed is zero, then may need to be rpm_min*(100/MAX_SPINDLE_RPM_OVERRIDE)
                     // but this would be instantaneous only and during a motion. May not matter at all.
-                    rpm = spindle_set_rpm(pl_block->spindle.hal,
-                                           pl_block->condition.is_rpm_rate_adjusted && !pl_block->condition.is_laser_ppi_mode
-                                            ? pl_block->spindle.rpm * prep.current_speed * prep.inv_feedrate
-                                            : pl_block->spindle.rpm, pl_block->spindle.hal->param->override_pct);
+                    // The velocity ratio is recorded for the spindle driver: a laser shaping its output by
+                    // speed needs the segment's own ratio, not a guess from the parser's latest S.
+                    float ratio = pl_block->condition.is_rpm_rate_adjusted && !pl_block->condition.is_laser_ppi_mode
+                                   ? prep.current_speed * prep.inv_feedrate : 1.0f;
+                    pl_block->spindle.hal->param->rate_ratio = ratio;
+                    rpm = spindle_set_rpm(pl_block->spindle.hal, pl_block->spindle.rpm * ratio,
+                                           pl_block->spindle.hal->param->override_pct);
                 }
             } else
                 pl_block->spindle.hal->param->rpm = rpm = 0.0f;

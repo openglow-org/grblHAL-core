@@ -362,6 +362,7 @@ typedef struct spindle_param {
     float rpm_overridden;
     spindle_state_t state;
     override_t override_pct;    //!< Spindle RPM override value in percent
+    float rate_ratio;           //!< Velocity ratio (actual over programmed speed) of the segment being prepared for a rate-adjusted laser block, 1.0 otherwise
     spindle_css_data_t css;     //!< Data used for Constant Surface Speed Mode (CSS) calculations, NULL if not in CSS mode.
     struct {
         uint8_t ramp_up          :1,
