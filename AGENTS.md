@@ -20,7 +20,7 @@ This is the project's fork of the grblHAL core, on the `forgefirm` branch.
   decision, never automatic.
 - **A rebase onto upstream is a bench event, not a housekeeping task.**
   Compare the settings store's layout at both revisions before the machine
-  sees it: a moved field silently invalidates a commissioned machine's
+  sees it: a moved field silently invalidates a set-up machine's
   calibration.
 - Never bump the submodule pointer in the driver repository unless asked.
 
