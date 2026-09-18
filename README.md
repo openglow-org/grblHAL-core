@@ -1,3 +1,12 @@
+> ### ForgeFIRM fork
+>
+> This is a fork of [grblHAL core](https://github.com/grblHAL/core), modified in
+> 2026 by 514 LLC d/b/a OpenGlow for the
+> [ForgeFIRM](https://github.com/openglow-org/forgefirm) project.
+> [FORK-CHANGES.md](FORK-CHANGES.md) lists each file differing from the upstream
+> and what it does. Everything else, including this README below, is upstream's
+> and unchanged.
+
 ## grblHAL ##
 
 Latest build date is 20260902, see the [changelog](changelog.md) for details.  
