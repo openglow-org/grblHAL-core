@@ -4088,6 +4088,10 @@ status_code_t gc_execute_block (char *block)
         plan_data.condition.coolant = gc_state.modal.coolant;
         plan_data.condition.is_rpm_rate_adjusted = spindle->state.ccw && spindle->hal->cap.laser;
 
+        // NOTE: Pass zero spindle speed for laser jog motions, as for all restricted laser motions.
+        if(settings.mode == Mode_Laser && spindle->hal->cap.laser)
+            plan_data.spindle.rpm = 0.0f;
+
         if((status_code_t)(int_value = (uint_fast16_t)mc_jog_execute(&plan_data, &gc_block, gc_state.position)) == Status_OK)
             memcpy(gc_state.position, gc_block.values.xyz, sizeof(gc_state.position));
 
@@ -4139,7 +4143,8 @@ status_code_t gc_execute_block (char *block)
         // If in laser mode, setup laser power based on current and past parser conditions.
         if((laser = spindle_is_laser(sspindle))) {
 
-            if(!motion_is_lasercut(gc_block.modal.motion))
+            if(!motion_is_lasercut(gc_block.modal.motion) ||
+                gc_block.non_modal_command == NonModal_GoHome_0 || gc_block.non_modal_command == NonModal_GoHome_1)
                 gc_parser_flags.laser_disable = On;
 
             // Any motion mode with axis words is allowed to be passed from a spindle speed update.
@@ -4965,7 +4970,7 @@ status_code_t gc_execute_block (char *block)
                 if(gc_state.modal.motion == MotionMode_CannedCycle84)
                     override_disable(&plan_data.spindle, spindle_id, (gc_override_flags_t){ .feed_hold = On, .feed_rates = On, .spindle_rpm = On }, &overrides);
 
-                plan_data.spindle.rpm = gc_block.values.s;
+                plan_data.spindle.rpm = gc_parser_flags.laser_disable ? 0.0f : gc_block.values.s;
                 gc_state.canned.retract_mode = gc_state.modal.retract_mode;
                 mc_canned_drill(gc_state.modal.motion, gc_block.values.xyz, &plan_data, gc_state.position, plane, gc_block.values.l, &gc_state.canned);
 
