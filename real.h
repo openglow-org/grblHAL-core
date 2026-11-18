@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <math.h>
+
 #if REAL_IS_DOUBLE
 
 typedef double real_t;

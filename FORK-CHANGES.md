@@ -7,9 +7,9 @@ Modified by 514 LLC d/b/a OpenGlow, 2026. Every upstream copyright notice is
 unchanged, and no file carries an OpenGlow copyright line: these are changes to
 Terje Io's work, not a new work.
 
-The table's nine rows are eight changes. Seven of them (`planner.c`,
-`settings.c`, `state_machine.c`, `machine_limits.c` and the three in `gcode.c`) are general core fixes
-rather than Glowforge-specific ones, and are candidates for upstream; the eighth,
+The table's ten rows are nine changes. Eight of them (`planner.c`,
+`settings.c`, `state_machine.c`, `machine_limits.c`, `real.h` and the three in `gcode.c`) are general core fixes
+rather than Glowforge-specific ones, and are candidates for upstream; the ninth,
 the segment's velocity ratio (`spindle_control.h` with `stepper.c`), is the
 driver's need. When one is submitted it goes as the code
 change alone, with authorship in git's `Author:` field and a `Signed-off-by:`
@@ -28,11 +28,12 @@ trailer -- never as an added copyright or "modified by" line in the diff.
 | `gcode.c` | In laser mode a `$J=` jog block is planned at zero spindle speed, as every other restricted laser motion is (a `G0` among them). Upstream copies the modal spindle into a jog block whole: under `M3 S..` a jog runs at the modal power, and a jog that the door holds and a cycle start resumes runs the rest of its length as a lit cycle. |
 | `gcode.c` | In laser mode a `G28` or `G30` block is a restricted laser motion, so both of its moves (to the intermediate point and to the stored position) are planned at zero spindle speed. Upstream disables the laser only for a modal motion that is not a cut: `G28` and `G30` are non-modal, so with `G1`, `G2` or `G3` modal and `M3`/`M4` on, both moves run at the modal power. |
 | `gcode.c` | In laser mode a canned cycle's moves (`G73`, `G81` to `G86`, `G89`: the rapids to the hole and to R, the feeds in Z, the retracts) are planned at the zero spindle speed of a restricted laser motion. Upstream's canned-cycle branch sets the block's spindle speed to S after the restricted-motion zero, so under `M3` or `M4` every move of the cycle runs at the modal power, whatever motion mode came before it. |
+| `real.h` | Includes `<math.h>` before it defines its wrappers. C23 adds `powr()` to `<math.h>` (glibc 2.42 and later declare it in C23 mode, gcc 15's default `-std=gnu23`, and whenever `_GNU_SOURCE` is defined, as the ForgeFIRM driver does, so any gcc meets it there), and a `<math.h>` read after the `powr(a, b)` macro has its own declaration of `powr` rewritten into a second, conflicting declaration of `powf`: a hard error in every file that includes a core header before `<math.h>` (upstream's `stepper2.c` among them). Read first, `<math.h>` declares its functions before the macros exist, and its include guard keeps a later `#include <math.h>` from reading them again. |
 
 `AGENTS.md` is OpenGlow's own file and is not a modification of upstream work.
 
 ## Rebasing
 
-The changes are small and confined to the seven files above. Rebase onto upstream
+The changes are small and confined to the eight files above. Rebase onto upstream
 `master`, then update this file if any change is reshaped, dropped because
 upstream fixed it, or added.
