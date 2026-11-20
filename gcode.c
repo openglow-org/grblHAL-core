@@ -2763,6 +2763,8 @@ status_code_t gc_execute_block (char *block)
                 break;
 
             case Override_FeedHold:
+                if(gc_block.values.p == 0.0f && settings.mode == Mode_Laser)
+                    RETURN(Status_GcodeUnsupportedCommand); // [M53 P0: feed hold is not disabled in laser mode]
                 gc_block.modal.override_ctrl.feed_hold_disable = gc_block.values.p == 0.0f;
                 break;
 
